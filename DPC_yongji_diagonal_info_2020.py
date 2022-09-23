@@ -51,7 +51,7 @@ class DPC:
                     Dia_r = abs(int(d2)-int(d3))
                     gh_l.append(GH);gv_l.append(GV)
                     # print(min([GV, GH, Dia_l, Dia_r]))
-                    if (GV > self.threshold) and (GH > self.threshold) and (Dia_l > self.threshold) and (Dia_r > self.threshold):
+                    if (GV < self.threshold) or (GH < self.threshold) or (Dia_l < self.threshold) or (Dia_r < self.threshold):
                         # print("entered")
                         if GV==min([GV, GH, Dia_l, Dia_r]):
                             mask[i,j] = (top+bottom)/2
