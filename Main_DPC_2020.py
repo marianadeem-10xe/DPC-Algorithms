@@ -2,6 +2,7 @@ from ast import Gt
 import os
 import DPC_open_isp as openisp
 import DPD_R_2020 as Takam_R
+import Takam_imp 
 import DPC_Takam_2020 as Takam
 import DPC_Yongji_2020 as yongji
 import DPC_yongji_diagonal_info_2020 as yongji_improved
@@ -23,10 +24,10 @@ print("total images: ", len(paths))
 
 # result obj to compile results
 result = Results()
-for raw_path in paths[0:1]:    
+for raw_path in paths:    
     raw_filename    = Path(raw_path).stem.split(".")[0]
-    out_img_path    = main_path +"Takam/corrected images/DPC_Output_Takam_R_" + raw_filename +".png"
-    out_mask_path   = main_path +"Takam/corrected masks/DPC_mask_Takam_R_" + raw_filename +".raw"
+    out_img_path    = main_path +"Takam/corrected images/DPC_Output_Takam_imp_" + raw_filename +".png"
+    out_mask_path   = main_path +"Takam/corrected masks/DPC_mask_Takam_imp_" + raw_filename +".raw"
     GT_path         = main_path + "Raw GT/GT_" + ("_").join(raw_filename.split("_")[2:]) + ".raw"
     org_img_path    = main_path + "Undefected Raw Input/" + ("_").join(raw_filename.split("_")[2:]) + ".raw"
     size = (1536, 2592)                       #(height, width)
@@ -72,7 +73,7 @@ for raw_path in paths[0:1]:
         print(def_img.shape)
         print(np.amax(def_img), np.amin(def_img))
 
-        dpc        = Takam_R.DPC(def_img, size) 
+        dpc        = Takam_imp.DPC(def_img, size, np.amin(def_img), np.amax(def_img),20) 
         corr_img   = dpc.execute() 
         corr_mask  = dpc.mask
         print(np.count_nonzero(corr_mask[0:2,:]))
@@ -101,4 +102,4 @@ for raw_path in paths[0:1]:
         confusion_matrix.insert(0, raw_filename)
         result.add_row(confusion_matrix)
 
-result.save_csv(main_path, "Takam_R_results")
+result.save_csv(main_path, "Takam_imp(min,max,20)_results")
