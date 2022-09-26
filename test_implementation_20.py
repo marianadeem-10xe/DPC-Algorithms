@@ -5,26 +5,38 @@ from matplotlib import pyplot as plt
 import utils
 #Load defective image
 
-raw_path        = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/scene/HisiRAW_2592x1536_12bits_RGGB_Linear_ISO4100_1.raw"
+raw_path        = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/scene/HisiRAW_2592x1536_12bits_RGGB_Linear_ISO300_1.raw"
 raw_filename    = Path(raw_path).stem
+GT_path         = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/Raw GT/GT_scene_"+ raw_filename + ".raw"
+mask_path       = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/Yongji/corrected masks/DPC_mask_yongji_imp_2_Defective_100_scene_HisiRAW_2592x1536_12bits_RGGB_Linear_ISO300_1.raw"
 size = (1536, 2592) #2592x1536
 
 raw_file = np.fromfile(raw_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
+GT = np.fromfile(GT_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
+mask = np.fromfile(mask_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
+
+print(raw_file[0:10,0:10])
+print(GT[0:10,0:10])
+print(mask[0:10,0:10])
+
+
+
+
 # raw_file  = raw_file[10:20,10:20]
-raw_file = np.clip(np.float32(raw_file)-200, 0, 4095).astype("uint16")
-print("before WB", np.amax(raw_file), np.amin(raw_file))
+# raw_file = np.clip(np.float32(raw_file)-200, 0, 4095).astype("uint16")
+# print("before WB", np.amax(raw_file), np.amin(raw_file))
 # print(raw_file)
-raw_file = utils.white_balance(raw_file, 320/256, 740/256, 256/256)
-print(np.amax(raw_file), np.amin(raw_file))
+# raw_file = utils.white_balance(raw_file, 320/256, 740/256, 256/256)
+# print(np.amax(raw_file), np.amin(raw_file))
 # print(raw_file)
 
-img = utils.demosaic_raw(raw_file, "RGGB")
-img = img/np.amax(img)
-img = ((img**(1/2.2))*255).astype("uint8")
+# img = utils.demosaic_raw(raw_file, "RGGB")
+# img = img/np.amax(img)
+# img = ((img**(1/2.2))*255).astype("uint8")
 
-print(np.amax(raw_file), np.amin(raw_file))
+# print(np.amax(raw_file), np.amin(raw_file))
 
-plt.imsave(str(Path(raw_path).parent)+"Input_img.png", img) 
+# plt.imsave(str(Path(raw_path).parent)+"Input_img.png", img) 
 # dpc = Takam.DPC(raw_file, (100,100))
 # corr_img = dpc.execute()
 # mask = dpc.mask

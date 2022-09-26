@@ -12,7 +12,7 @@ from pathlib import Path
 from matplotlib import pyplot as plt
 
 # Define variables
-main_path       = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/"
+main_path       = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Final Results/"
 folders         = ["Raw input"]#["ISO100", "ISO800", "ISO1600", "ISO2500", "ISO3500", "ISO4000", "ISO5000", "ISO6500", "ISO17000", "scene"] 
 paths           = [] 
 
@@ -26,8 +26,8 @@ print("total images: ", len(paths))
 result = Results()
 for raw_path in paths:    
     raw_filename    = Path(raw_path).stem.split(".")[0]
-    out_img_path    = main_path +"Takam/corrected images/DPC_Output_Takam_imp_" + raw_filename +".png"
-    out_mask_path   = main_path +"Takam/corrected masks/DPC_mask_Takam_imp_" + raw_filename +".raw"
+    out_img_path    = main_path +"openISP/corrected images/DPC_Output_openISP_imp_1th_70_" + raw_filename +".png"
+    out_mask_path   = main_path +"openISP/corrected masks/DPC_mask_openISP_imp_1th_70_" + raw_filename +".raw"
     GT_path         = main_path + "Raw GT/GT_" + ("_").join(raw_filename.split("_")[2:]) + ".raw"
     org_img_path    = main_path + "Undefected Raw Input/" + ("_").join(raw_filename.split("_")[2:]) + ".raw"
     size = (1536, 2592)                       #(height, width)
@@ -41,8 +41,7 @@ for raw_path in paths:
     # Read the raw image
     print("Reading raw file {}...".format(paths.index(raw_path)))
     raw_file = np.fromfile(raw_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
-    print(raw_filename)
-
+    
     # Generate a defective image
     if add_defect:
         defective_img, original_val = introduce_defect(raw_file, 100, padding=False)
@@ -50,8 +49,8 @@ for raw_path in paths:
         print("Total defect pixels: ", np.count_nonzero(original_val))
         
         # Save the defective image, mask and ground truth values for the defective pixels as binary files.
-        save_files = [(defective_img,  main_path +"Raw input/Defective_100_" + raw_path.split("/")[-2] + "_" + raw_filename + ".raw"), 
-                    (original_val,   main_path +"Raw GT/GT_" + raw_path.split("/")[-2] +"_"+ raw_filename + ".raw" )]
+        save_files = [(defective_img, main_path +"Final Results/Raw input/Defective_100_" + raw_path.split("/")[-2] + "_" + raw_filename + ".raw"), 
+                    (original_val, main_path +"Final Results/Raw GT/GT_" + raw_path.split("/")[-2] +"_"+ raw_filename + ".raw" )]
         for img, path in save_files:
             with open(path, "wb") as file:
                 img.astype("uint16").tofile(file)
@@ -59,7 +58,7 @@ for raw_path in paths:
         # Save the defective image as .png image  (BLC --> WB --> Demsaic --> Gamma correction --> save)
         def_blc = np.clip(np.float32(defective_img)-200, 0, 4095).astype("uint16")
         save_as  = gamma(demosaic_raw(white_balance(def_blc.copy(), 320/256, 740/256, 256/256), "RGGB"))
-        plt.imsave(main_path +"Input images/"+ raw_filename + "_" + raw_path.split("/")[-2] +"_20DP_Def_input.png", save_as)
+        plt.imsave(main_path +"Final Results/Input images/"+ raw_path.split("/")[-2] + "_" + raw_filename +"_100DP_Def_input.png", save_as)
     
         print("Defective Image saved!")
 
@@ -73,7 +72,7 @@ for raw_path in paths:
         print(def_img.shape)
         print(np.amax(def_img), np.amin(def_img))
 
-        dpc        = Takam_imp.DPC(def_img, size, np.amin(def_img), np.amax(def_img),20) 
+        dpc        = openisp.DPC(def_img, size, 70) 
         corr_img   = dpc.execute() 
         corr_mask  = dpc.mask
         print(np.count_nonzero(corr_mask[0:2,:]))
@@ -102,4 +101,4 @@ for raw_path in paths:
         confusion_matrix.insert(0, raw_filename)
         result.add_row(confusion_matrix)
 
-result.save_csv(main_path, "Takam_imp(min,max,20)_results")
+result.save_csv(main_path, "openISP_imp_45_1th_70_results")

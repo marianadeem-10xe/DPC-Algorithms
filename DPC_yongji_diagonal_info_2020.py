@@ -5,12 +5,13 @@ import numpy as np
 # Define Class DPC
 
 class DPC:
-    def __init__(self, img, size, threshold):
+    def __init__(self, img, size, threshold, st_low, st_high):
         self.img = img
         self.height = size[0]
         self.width = size[1]
         self.threshold = threshold 
-
+        self.stucklow  = st_low
+        self.stuckhigh  =  st_high
     def execute(self):
         
         """Replace the dead pixel value with corrected pixel value and returns 
@@ -39,31 +40,36 @@ class DPC:
                 neighbours               = [int(left), int(right), int(top), int(bottom), int(d1), int(d2), int(d3), int(d4)]
                 neighbours.sort()
                 PM, PH, PL, PN           = neighbours[-1], neighbours[-2], neighbours[1], neighbours[0]        
-                diff = PH-PL; diff_l.append(diff) 
-                avg  = (sum(neighbours)-(sum([PM,PH,PL,PN])))/4
+                diff = PM-PN; diff_l.append(diff) 
+                avg  = sum(neighbours)/8 #-(sum([PM,PH,PL,PN])))/4
                 # print(left, right, top, bottom, d1, d2, d3, d4)
                 if not ((avg-diff) < to_be_tested_pv < (avg+diff)):
-                    # print("DP found at p: ", to_be_tested_pv)
-                    # print(est)
-                    GH = abs(int(d1)-int(top))  + abs(int(d2)-int(top))   + abs(int(d3)-int(bottom)) + abs(int(d4)-int(bottom))
-                    GV = abs(int(d1)-int(left)) + abs(int(d2)-int(right)) + abs(int(d3)-int(left))   + abs(int(d4)-int(right))
-                    Dia_l = abs(int(d1)-int(d4))
-                    Dia_r = abs(int(d2)-int(d3))
-                    gh_l.append(GH);gv_l.append(GV)
-                    # print(min([GV, GH, Dia_l, Dia_r]))
-                    if (GV < self.threshold) or (GH < self.threshold) or (Dia_l < self.threshold) or (Dia_r < self.threshold):
-                        # print("entered")
-                        if GV==min([GV, GH, Dia_l, Dia_r]):
-                            mask[i,j] = (top+bottom)/2
-                        elif GH==min([GV, GH, Dia_l, Dia_r]):
-                            mask[i,j] = (left+right)/2
-                        elif Dia_l==min([GV, GH, Dia_l, Dia_r]): 
-                            mask[i,j] =  (d1+d4)/2
-                        elif Dia_r==min([GV, GH, Dia_l, Dia_r]):
-                            mask[i,j] = (d2+d3)/2    
-                    else:                        
-                        mask[i,j] = (left+right+top+bottom)/4       
-                            # mask[i,j] = np.median(np.array([left, right, top, bottom])).astype("uint16")       
+                    
+                    diff_p0 = abs(int(to_be_tested_pv)-avg) 
+                    thresh_1 = abs((int(to_be_tested_pv)+avg)/2 - self.stucklow)
+                    thresh_2 = abs(((int(to_be_tested_pv)+avg)/2) - self.stuckhigh)
+                    if diff_p0>thresh_1 or diff_p0>thresh_2:
+                        # print("DP found at p: ", to_be_tested_pv)
+                        # print(est)
+                        GH = abs(int(d1)-int(top))  + abs(int(d2)-int(top))   + abs(int(d3)-int(bottom)) + abs(int(d4)-int(bottom))
+                        GV = abs(int(d1)-int(left)) + abs(int(d2)-int(right)) + abs(int(d3)-int(left))   + abs(int(d4)-int(right))
+                        Dia_l = abs(int(d1)-int(d4))
+                        Dia_r = abs(int(d2)-int(d3))
+                        gh_l.append(GH);gv_l.append(GV)
+                        # print(min([GV, GH, Dia_l, Dia_r]))
+                        if (GV < self.threshold) or (GH < self.threshold) or (Dia_l < self.threshold) or (Dia_r < self.threshold):
+                            # print("entered")
+                            if GV==min([GV, GH, Dia_l, Dia_r]):
+                                mask[i,j] = (top+bottom)/2
+                            elif GH==min([GV, GH, Dia_l, Dia_r]):
+                                mask[i,j] = (left+right)/2
+                            elif Dia_l==min([GV, GH, Dia_l, Dia_r]): 
+                                mask[i,j] =  (d1+d4)/2
+                            elif Dia_r==min([GV, GH, Dia_l, Dia_r]):
+                                mask[i,j] = (d2+d3)/2    
+                        else:                        
+                            mask[i,j] = (left+right+top+bottom)/4       
+
         # print("GH max, min:", max(gh_l), min(gh_l))
         # print("GV max, min:", max(gv_l), min(gv_l))
         # print("diff max, min:", max(diff_l), min(diff_l))

@@ -5,12 +5,14 @@ import numpy as np
 # Define Class DPC
 
 class DPC:
-    def __init__(self, img, size, threshold):
+    def __init__(self, img, size, threshold):#, st_low, st_high):
         self.img = img
         self.height = size[0]
         self.width = size[1]
         self.threshold = threshold
         self.mode      = "gradient" 
+        # self.stucklow = st_low
+        # self.stuckhigh = st_high
     def execute(self):
         
         """Replace the dead pixel value with corrected pixel value and returns 
@@ -29,24 +31,32 @@ class DPC:
                 p6 = self.img[y + 4, x]
                 p7 = self.img[y + 4, x + 2]
                 p8 = self.img[y + 4, x + 4]
-                if (abs(int(p1) - int(p0)) > self.threshold) and (abs(int(p2) - int(p0)) > self.threshold) and (abs(int(p3) - int(p0)) > self.threshold) \
-                        and (abs(int(p4) - int(p0)) > self.threshold) and (abs(int(p5) - int(p0)) > self.threshold) and (abs(int(p6) - int(p0)) > self.threshold) \
-                        and (abs(int(p7) - int(p0)) > self.threshold) and (abs(int(p8) - int(p0)) > self.threshold):
-                    if self.mode == 'mean':
-                        p0 = (p2 + p4 + p5 + p7) / 4
-                    elif self.mode == 'gradient':
-                        dv = abs(2 * p0 - p2 - p7)
-                        dh = abs(2 * p0 - p4 - p5)
-                        ddl = abs(2 * p0 - p1 - p8)
-                        ddr = abs(2 * p0 - p3 - p6)
-                        if (min(dv, dh, ddl, ddr) == dv):
-                            p0 = (p2 + p7 + 1) / 2
-                        elif (min(dv, dh, ddl, ddr) == dh):
-                            p0 = (p4 + p5 + 1) / 2
-                        elif (min(dv, dh, ddl, ddr) == ddl):
-                            p0 = (p1 + p8 + 1) / 2
-                        else:
-                            p0 = (p3 + p6 + 1) / 2
+                
+                # diff = abs(max([p1, p2, p3, p4,p5, p6,p7, p8]) - min([p1, p2, p3, p4,p5, p6,p7, p8]))
+                # avg = sum([int(p1), int(p2), int(p3), int(p4), int(p5), int(p6), int(p7), int(p8)])/8
+                # diff_p0 = abs(int(p0)-avg) 
+                # thresh_1 = abs((int(p0)+avg)/2 - self.stucklow)
+                # thresh_2 = abs(((int(p0)+avg)/2) - self.stuckhigh)
+                # if diff_p0>thresh_1 or diff_p0>thresh_2:
+                if not(min([p1, p2, p3, p4,p5, p6,p7, p8]) < p0 < max([p1, p2, p3, p4,p5, p6,p7, p8])):
+                    if (abs(int(p1) - int(p0)) > self.threshold) and (abs(int(p2) - int(p0)) > self.threshold) and (abs(int(p3) - int(p0)) > self.threshold) \
+                            and (abs(int(p4) - int(p0)) > self.threshold) and (abs(int(p5) - int(p0)) > self.threshold) and (abs(int(p6) - int(p0)) > self.threshold) \
+                            and (abs(int(p7) - int(p0)) > self.threshold) and (abs(int(p8) - int(p0)) > self.threshold):
+                        if self.mode == 'mean':
+                            p0 = (p2 + p4 + p5 + p7) / 4
+                        elif self.mode == 'gradient':
+                            dv = abs(2 * p0 - p2 - p7)
+                            dh = abs(2 * p0 - p4 - p5)
+                            ddl = abs(2 * p0 - p1 - p8)
+                            ddr = abs(2 * p0 - p3 - p6)
+                            if (min(dv, dh, ddl, ddr) == dv):
+                                p0 = (p2 + p7 + 1) / 2
+                            elif (min(dv, dh, ddl, ddr) == dh):
+                                p0 = (p4 + p5 + 1) / 2
+                            elif (min(dv, dh, ddl, ddr) == ddl):
+                                p0 = (p1 + p8 + 1) / 2
+                            else:
+                                p0 = (p3 + p6 + 1) / 2
                 
                 dpc_img[y, x] = p0
                 if self.img[y + 2, x + 2]!=p0:
