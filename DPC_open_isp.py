@@ -45,18 +45,25 @@ class DPC:
                         if self.mode == 'mean':
                             p0 = (p2 + p4 + p5 + p7) / 4
                         elif self.mode == 'gradient':
-                            dv = abs(2 * p0 - p2 - p7)
-                            dh = abs(2 * p0 - p4 - p5)
-                            ddl = abs(2 * p0 - p1 - p8)
-                            ddr = abs(2 * p0 - p3 - p6)
+                            # original
+                            dv = abs(2 * int(p0) - int(p2) - int(p7))
+                            dh = abs(2 * int(p0) - int(p4) - int(p5))
+                            ddl = abs(2 * int(p0) - int(p1) - int(p8))
+                            ddr = abs(2 * int(p0) - int(p3) - int(p6))
+
+                            # dv = abs(int(p2) - int(p7))
+                            # dh = abs(int(p4) - int(p5))
+                            # ddl = abs(int(p1) - int(p8))
+                            # ddr = abs(int(p3) - int(p6))
+                            
                             if (min(dv, dh, ddl, ddr) == dv):
-                                p0 = (p2 + p7 + 1) / 2
+                                p0 = (p2 + p7) / 2
                             elif (min(dv, dh, ddl, ddr) == dh):
-                                p0 = (p4 + p5 + 1) / 2
+                                p0 = (p4 + p5) / 2
                             elif (min(dv, dh, ddl, ddr) == ddl):
-                                p0 = (p1 + p8 + 1) / 2
+                                p0 = (p1 + p8) / 2
                             else:
-                                p0 = (p3 + p6 + 1) / 2
+                                p0 = (p3 + p6) / 2
                 
                 dpc_img[y, x] = p0
                 if self.img[y + 2, x + 2]!=p0:
