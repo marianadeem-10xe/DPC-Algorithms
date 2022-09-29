@@ -103,7 +103,6 @@ def white_balance(img, R_gain, B_gain, G_gain):
                 img[y][x] *= G_gain 
             else:
                 img[y][x] *= B_gain
-    img = np.clip(img, 0, 4095)
     img = ((img/np.amax(img))*(4095)).astype("uint16")
     return img 
 

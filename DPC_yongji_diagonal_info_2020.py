@@ -41,13 +41,14 @@ class DPC:
                 neighbours.sort()
                 PM, PH, PL, PN           = neighbours[-1], neighbours[-2], neighbours[1], neighbours[0]        
                 diff = PM-PN; diff_l.append(diff) 
-                avg  = sum(neighbours)/8 #-(sum([PM,PH,PL,PN])))/4
+                avg  = sum(neighbours)/8 #-(sum([PM,PH,PL,PN]))/4
                 # print(left, right, top, bottom, d1, d2, d3, d4)
                 if not ((avg-diff) < to_be_tested_pv < (avg+diff)):
-                    
+                   
                     diff_p0 = abs(int(to_be_tested_pv)-avg) 
                     thresh_1 = abs((int(to_be_tested_pv)+avg)/2 - self.stucklow)
                     thresh_2 = abs(((int(to_be_tested_pv)+avg)/2) - self.stuckhigh)
+                    
                     if diff_p0>thresh_1 or diff_p0>thresh_2:
                         # print("DP found at p: ", to_be_tested_pv)
                         # print(est)
