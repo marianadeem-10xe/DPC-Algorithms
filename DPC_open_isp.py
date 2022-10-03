@@ -38,7 +38,9 @@ class DPC:
                 # thresh_1 = abs((int(p0)+avg)/2 - self.stucklow)
                 # thresh_2 = abs(((int(p0)+avg)/2) - self.stuckhigh)
                 # if diff_p0>thresh_1 or diff_p0>thresh_2:
-                if not(min([p1, p2, p3, p4,p5, p6,p7, p8]) < p0 < max([p1, p2, p3, p4,p5, p6,p7, p8])):
+                
+                if not(min([p1, p2, p3, p4, p5, p6, p7, p8]) < p0 < max([p1, p2, p3, p4, p5, p6,p7, p8])):
+                    
                     if (abs(int(p1) - int(p0)) > self.threshold) and (abs(int(p2) - int(p0)) > self.threshold) and (abs(int(p3) - int(p0)) > self.threshold) \
                             and (abs(int(p4) - int(p0)) > self.threshold) and (abs(int(p5) - int(p0)) > self.threshold) and (abs(int(p6) - int(p0)) > self.threshold) \
                             and (abs(int(p7) - int(p0)) > self.threshold) and (abs(int(p8) - int(p0)) > self.threshold):
@@ -68,6 +70,7 @@ class DPC:
                 dpc_img[y, x] = p0
                 if self.img[y + 2, x + 2]!=p0:
                     self.mask[y + 2, x + 2] = p0
+                    
         self.img = dpc_img
         return self.img       
 

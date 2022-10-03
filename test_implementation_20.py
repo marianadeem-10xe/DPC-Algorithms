@@ -5,19 +5,19 @@ from matplotlib import pyplot as plt
 import utils
 #Load defective image
 
-raw_path        = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/scene/HisiRAW_2592x1536_12bits_RGGB_Linear_ISO300_1.raw"
-raw_filename    = Path(raw_path).stem
-GT_path         = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/Raw GT/GT_scene_"+ raw_filename + ".raw"
-mask_path       = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/Yongji/corrected masks/DPC_mask_yongji_imp_2_Defective_100_scene_HisiRAW_2592x1536_12bits_RGGB_Linear_ISO300_1.raw"
-size = (1536, 2592) #2592x1536
+# raw_path        = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/scene/HisiRAW_2592x1536_12bits_RGGB_Linear_ISO300_1.raw"
+# raw_filename    = Path(raw_path).stem
+# GT_path         = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/Raw GT/GT_scene_"+ raw_filename + ".raw"
+# mask_path       = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/Yongji/corrected masks/DPC_mask_yongji_imp_2_Defective_100_scene_HisiRAW_2592x1536_12bits_RGGB_Linear_ISO300_1.raw"
+# size = (1536, 2592) #2592x1536
 
-raw_file = np.fromfile(raw_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
-GT = np.fromfile(GT_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
-mask = np.fromfile(mask_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
+# raw_file = np.fromfile(raw_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
+# GT = np.fromfile(GT_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
+# mask = np.fromfile(mask_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
 
-print(raw_file[0:10,0:10])
-print(GT[0:10,0:10])
-print(mask[0:10,0:10])
+# print(raw_file[0:10,0:10])
+# print(GT[0:10,0:10])
+# print(mask[0:10,0:10])
 
 
 
@@ -41,7 +41,6 @@ print(mask[0:10,0:10])
 # corr_img = dpc.execute()
 # mask = dpc.mask
 # print(np.count_nonzero(mask))
-exit()
 
 """defective_img, original_val = DPC_2012.introduce_defect(raw_file)
 print(np.count_nonzero(original_val))
@@ -97,3 +96,41 @@ print("Defective Image saved!")"""
 # print(GT_patch)
 # Takam.Evaluation(GT_patch, corr_mask)
 ############################################## 
+# To save csv file of 5x5 window around each False positively dtected pv for openISP
+from utils import save_FPs_as_csv
+img_path  = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/ISO100 - ISO1000/Raw input/Defective_100_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.raw" 
+mask_path = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/ISO100 - ISO1000/openISP/corrected masks/DPC_mask_openISP_imp_1th_80_Defective_100_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.raw"
+GT_path   = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/ISO100 - ISO1000/Raw GT/GT_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.raw"
+save_path = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/FPs_Defective_100_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.csv"
+size = (1536, 2592) #2592x1536
+
+img_array = np.fromfile(img_path, dtype= "uint16").reshape(size)
+GT_array   = np.fromfile(GT_path, dtype="uint16").reshape(size)
+mask_array = np.fromfile(mask_path, dtype= "uint16").reshape(size)
+
+"=============================="
+# import DPC_open_isp as openisp
+# def_img = np.clip(np.float32(img_array)-200, 0, 4095).astype("uint16")
+# dpc        = openisp.DPC(def_img, size, 80) 
+# corr_img   = dpc.execute() 
+# corr_mask  = dpc.mask
+# print(corr_mask[2,57])
+
+"=============================="
+
+
+# tp, fn, tn, fp = 0,0,0,0
+# for i in range(2, GT_array.shape[0]-2):
+#         for j in range(2, GT_array.shape[1]-2):
+#             if GT_array[i,j]!=0 and mask_array[i,j]!=0:
+#                 tp+=1
+#             elif GT_array[i,j]==0 and mask_array[i,j]==0:
+#                 tn+=1
+#             elif GT_array[i,j]!=0 and mask_array[i,j]==0:
+#                 fn+=1    
+#             elif GT_array[i, j]==0 and mask_array[i,j]!=0:
+#                 fp+=1
+# print(tp, fn, tn, fp)
+
+save_FPs_as_csv(img_array.astype("int64"), GT_array, mask_array, save_path, 100)
+print("Done")

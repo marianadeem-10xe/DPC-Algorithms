@@ -12,7 +12,7 @@ from pathlib import Path
 from matplotlib import pyplot as plt
 
 # Define variables
-main_path       = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/ISO100 - ISO1000/"
+main_path       = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/ISO2000 - ISO4000/"
 folders         = ["Raw input"]#["ISO100", "ISO800", "ISO1600", "ISO2500", "ISO3500", "ISO4000", "ISO5000", "ISO6500", "ISO17000", "scene"] 
 paths           = [] 
 
@@ -26,8 +26,8 @@ print("total images: ", len(paths))
 result = Results()
 for raw_path in paths:    
     raw_filename    = Path(raw_path).stem.split(".")[0]
-    out_img_path    = main_path +"Yongji/corrected images/DPC_Output_yongji_imp_3th_min,max,70_" + raw_filename +".png"
-    out_mask_path   = main_path +"Yongji/corrected masks/DPC_mask_yongji_imp_3th_min,max,70_" + raw_filename +".raw"
+    out_img_path    = main_path +"Yongji/corrected images/DPC_Output_yongji_imp_3th_600,3500,70_" + raw_filename +".png"
+    out_mask_path   = main_path +"Yongji/corrected masks/DPC_mask_yongji_imp_3th_600,3500,70_" + raw_filename +".raw"
     GT_path         = main_path + "Raw GT/GT_" + ("_").join(raw_filename.split("_")[2:]) + ".raw"
     org_img_path    = main_path + "Undefected Raw Input/" + ("_").join(raw_filename.split("_")[2:]) + ".raw"
     size = (1536, 2592)                       #(height, width)
@@ -72,7 +72,7 @@ for raw_path in paths:
         print(def_img.shape)
         print(np.amax(def_img), np.amin(def_img))
 
-        dpc        = yongji_improved.DPC(def_img, size, 70, np.amin(def_img), np.amax(def_img)) 
+        dpc        = yongji_improved.DPC(def_img, size, 70, 600, 3500) 
         corr_img   = dpc.execute() 
         corr_mask  = dpc.mask
         print(np.count_nonzero(corr_mask[0:2,:]))
@@ -101,4 +101,4 @@ for raw_path in paths:
         confusion_matrix.insert(0, raw_filename)
         result.add_row(confusion_matrix)
 
-result.save_csv(main_path, "yongji_imp_3th_min,max,70_results")
+result.save_csv(main_path, "yongji_imp_3th_600,3500,70_results")
