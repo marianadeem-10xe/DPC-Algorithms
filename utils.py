@@ -96,18 +96,18 @@ def white_balance(img, R_gain, B_gain, G_gain):
     img = img.astype("float32")
     for x in range(img.shape[1]): #col
         for y in range(img.shape[0]):   #row
-            color = get_color(x, y)
+            color = get_color(y, x)
             if color=="R":
                 img[y][x] *= R_gain 
             elif color=="G":
                 img[y][x] *= G_gain 
             else:
                 img[y][x] *= B_gain
-    img = np.clip(img, 0, 4095)
-    img = ((img/np.amax(img))*(4095)).astype("uint16")
+    # img = np.clip(img, 0, 4095)               
+    img = ((img/4095)*(4095)).astype("uint16")
     return img 
 
 def gamma(img):
-    img = img/np.max(img)
+    img = np.float32(img)/255
     img = (img**(1/2.2))*255
     return img.astype("uint8")    

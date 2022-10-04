@@ -5,19 +5,19 @@ from matplotlib import pyplot as plt
 import utils
 #Load defective image
 
-raw_path        = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/scene/HisiRAW_2592x1536_12bits_RGGB_Linear_ISO300_1.raw"
-raw_filename    = Path(raw_path).stem
-GT_path         = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/Raw GT/GT_scene_"+ raw_filename + ".raw"
-mask_path       = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/Yongji/corrected masks/DPC_mask_yongji_imp_2_Defective_100_scene_HisiRAW_2592x1536_12bits_RGGB_Linear_ISO300_1.raw"
-size = (1536, 2592) #2592x1536
+# raw_path        = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/scene/HisiRAW_2592x1536_12bits_RGGB_Linear_ISO300_1.raw"
+# raw_filename    = Path(raw_path).stem
+# GT_path         = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/Raw GT/GT_scene_"+ raw_filename + ".raw"
+# mask_path       = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/Yongji/corrected masks/DPC_mask_yongji_imp_2_Defective_100_scene_HisiRAW_2592x1536_12bits_RGGB_Linear_ISO300_1.raw"
+# size = (1536, 2592) #2592x1536
 
-raw_file = np.fromfile(raw_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
-GT = np.fromfile(GT_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
-mask = np.fromfile(mask_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
+# raw_file = np.fromfile(raw_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
+# GT = np.fromfile(GT_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
+# mask = np.fromfile(mask_path, dtype="uint16").reshape(size)      # Construct an array from data in a text or binary file.
 
-print(raw_file[0:10,0:10])
-print(GT[0:10,0:10])
-print(mask[0:10,0:10])
+# print(raw_file[0:10,0:10])
+# print(GT[0:10,0:10])
+# print(mask[0:10,0:10])
 
 
 
@@ -41,7 +41,6 @@ print(mask[0:10,0:10])
 # corr_img = dpc.execute()
 # mask = dpc.mask
 # print(np.count_nonzero(mask))
-exit()
 
 """defective_img, original_val = DPC_2012.introduce_defect(raw_file)
 print(np.count_nonzero(original_val))
@@ -97,3 +96,67 @@ print("Defective Image saved!")"""
 # print(GT_patch)
 # Takam.Evaluation(GT_patch, corr_mask)
 ############################################## 
+from utils import gamma, white_balance, demosaic_raw
+import DPC_open_isp as openisp
+
+img_path  = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/ISO100 - ISO1000/Raw input/Defective_100_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.raw" 
+mask_path = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/ISO100 - ISO1000/openISP/corrected masks/DPC_mask_openISP_imp_1th_80_Defective_100_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.raw"
+GT_path   = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/ISO100 - ISO1000/Raw GT/GT_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.raw"
+save_path = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/FPs_Defective_100_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.csv"
+size = (1536, 2592) #2592x1536
+
+img_array = np.fromfile(img_path, dtype= "uint16").reshape(size)
+# GT_array   = np.fromfile(GT_path, dtype="uint16").reshape(size)
+# mask_array = np.fromfile(mask_path, dtype= "uint16").reshape(size)
+
+
+def_img = np.clip(np.float32(img_array)-200, 0, 4095).astype("uint16")
+save_img = gamma(demosaic_raw(white_balance(def_img.copy(), 320/256, 740/256, 256/256), "RGGB"))
+plt.imsave("/home/user3/Desktop/testing_display_input.png", save_img)
+
+dpc        = openisp.DPC(def_img, size, 80) 
+corr_img   = dpc.execute() 
+corr_mask  = dpc.mask
+
+save_img = gamma(demosaic_raw(white_balance(def_img.copy(), 320/256, 740/256, 256/256), "RGGB"))
+plt.imsave("/home/user3/Desktop/DPC_output.png", save_img)
+print("img saved")
+
+
+
+
+
+
+#==============================================================================
+# tested bug in open ISP
+"""test_img = np.array([[1,2,3], [4,5,6], [7,8,9]],dtype=object)
+test_img = np.pad(test_img, (3,3))
+print(test_img.shape)
+test_img[0:2, :] = "side"
+test_img[:, 0:2] = "side"
+test_img[-2:, :] = "side"
+test_img[:, -2:] = "side"
+test_img[3,3]  = 100
+# print(test_img)
+for y in range(0,test_img.shape[0] - 2):
+    for x in range(0,test_img.shape[1] - 2):
+        p0 = test_img[y + 1, x + 1]
+        p1 = test_img[y, x]
+        p2 = test_img[y, x + 1]
+        p3 = test_img[y, x + 2]
+        p4 = test_img[y + 1, x]
+        p5 = test_img[y + 1, x + 2]
+        p6 = test_img[y + 2, x]
+        p7 = test_img[y + 2, x + 1]
+        p8 = test_img[y + 2, x + 2]
+        
+        
+        if test_img[y+1,x+1]==100:
+            print(p1+p8/2, p1, p8)
+            test_img[y + 1, x + 1] = p1+p8/2 
+        #     # test_img[y, x] = (y,x)
+print(test_img)"""
+# print(np.where(test_img=="p1"))
+# print(range(test_img.shape[0] - 4))
+# print(range(test_img.shape[0] - 4))
+#==============================================================================
