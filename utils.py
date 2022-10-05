@@ -111,3 +111,43 @@ def gamma(img):
     img = np.float32(img)/255
     img = (img**(1/2.2))*255
     return img.astype("uint8")    
+
+####################################################################################
+class FPs:
+    def __init__(self):
+        self.FPs_pd = pd.DataFrame(np.zeros((1,9)), columns=["x-coord_p1", "y-coord_p1","loc","loc","loc", "val","val","val", "corrected_value"])
+    
+    def add_row(self,matrix):
+        self.FPs_pd = pd.concat([self.FPs_pd, pd.DataFrame(np.array(matrix), columns=["x-coord_p1", "y-coord_p1","loc","loc","loc", "val","val","val", "corrected_value"])], ignore_index=False)
+    
+    def save_csv(self, path, filename):
+        self.FPs_pd.to_csv(path + "/" +filename + ".csv", index=False)
+
+#######################
+from pathlib import Path
+
+def save_FPs_as_csv(orig_img_arr, gt_arr, mask_arr, save_path, FPs_to_save):
+    save_pd = FPs()
+    for i in range(FPs_to_save):#(2, gt_arr.shape[0]-2):
+        for j in range(FPs_to_save):#(2, gt_arr.shape[1]-2):
+
+            FP_flag = True if gt_arr[i+2,j+2]==0 and mask_arr[i+2,j+2]>0 else False
+            if FP_flag:
+                p0 = orig_img_arr[i + 2, j + 2] # center pixel
+                p1 = orig_img_arr[i, j]         # top left
+                p2 = orig_img_arr[i, j + 2]     # top mid
+                p3 = orig_img_arr[i, j + 4]     # top right
+                p4 = orig_img_arr[i + 2, j]     # mid row left
+                p5 = orig_img_arr[i + 2, j + 4] # mid row right
+                p6 = orig_img_arr[i + 4, j]     # bottom row left
+                p7 = orig_img_arr[i + 4, j + 2] # bottom row mid
+                p8 = orig_img_arr[i + 4, j + 4] # bottom right
+
+                neighbors = np.array([[i, j,"p1", "p2", "p3", p1-200, p2-200, p3-200, mask_arr[i+2,j+2]], 
+                                     ["","","p4", "p0", "p5", p4-200, p0-200, p5-200, "" ],
+                                     ["","","p6", "p7", "p8", p6-200 ,p7-200, p8-200, ""], 
+                                     ["","", "",  "",  "",  "",  "", "", ""]])
+                save_pd.add_row(neighbors)
+            
+    save_pd.save_csv(str(Path(save_path).parent),Path(save_path).stem) 
+####################################################################################    

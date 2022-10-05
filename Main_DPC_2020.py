@@ -34,9 +34,8 @@ for raw_path in paths:
 
     # Flags
     add_defect = False
-    run_DPC    = True
-    evaluate   = True
-
+    run_DPC    = False
+    evaluate   = False
 
     # Read the raw image
     print("Reading raw file {}...".format(paths.index(raw_path)))
@@ -100,4 +99,24 @@ for raw_path in paths:
         confusion_matrix.insert(0, raw_filename)
         result.add_row(confusion_matrix)
 
-result.save_csv(main_path, "Yongji_imp_3th_min, max, 20_results")
+# uncomment the next line while generating results for DPC module. 
+# result.save_csv(main_path, "Yongji_imp_3th_min, max, 20_results")
+
+#############################################################################
+
+# To save csv file of 5x5 window around first N False positively detected pv for openISP
+from utils import save_FPs_as_csv
+
+img_path  = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/ISO100 - ISO1000/Raw input/Defective_100_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.raw" 
+mask_path = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/ISO100 - ISO1000/openISP/corrected masks/corrected_mask_openISP_imp_1th_80_Defective_100_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.raw"
+GT_path   = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/ISO100 - ISO1000/Raw GT/GT_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.raw"
+save_path = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detection and Correction/DPC_dataset/Threshold tuning/FPs_Defective_100_ISO800_HisiRAW_2592x1536_12bits_RGGB_Linear_20220407205358_BNR_OFF.csv"
+size      = (1536, 2592) #2592x1536
+
+img_array = np.fromfile(img_path, dtype= "uint16").reshape(size)
+GT_array   = np.fromfile(GT_path, dtype="uint16").reshape(size)
+mask_array = np.fromfile(mask_path, dtype= "uint16").reshape(size)
+
+# uncomment the next line while saving the FPs for a specific image.
+# save_FPs_as_csv(img_array.astype("int64"), GT_array, mask_array, save_path, 100)
+#############################################################################
