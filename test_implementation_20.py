@@ -106,18 +106,32 @@ save_path = "/home/user3/Desktop/Maria Nadeem/Infinite-ISP/Defect Pixel Detectio
 size = (1536, 2592) #2592x1536
 
 img_array = np.fromfile(img_path, dtype= "uint16").reshape(size)
-# GT_array   = np.fromfile(GT_path, dtype="uint16").reshape(size)
-# mask_array = np.fromfile(mask_path, dtype= "uint16").reshape(size)
+GT_array   = np.fromfile(GT_path, dtype="uint16").reshape(size)
+mask_array = np.fromfile(mask_path, dtype= "uint16").reshape(size)
+
+# print(np.nonzero(GT_array))
+print(np.amax(np.nonzero(GT_array)), np.amin(np.nonzero(GT_array)))
 
 
 def_img = np.clip(np.float32(img_array)-200, 0, 4095).astype("uint16")
-save_img = gamma(demosaic_raw(white_balance(def_img.copy(), 320/256, 740/256, 256/256), "RGGB"))
-plt.imsave("/home/user3/Desktop/testing_display_input.png", save_img)
+print(np.amax(def_img), np.amin(def_img))
+
+# save_img = gamma(demosaic_raw(white_balance(def_img.copy(), 320/256, 740/256, 256/256), "RGGB"))
+# plt.imsave("/home/user3/Desktop/testing_display_input.png", save_img)
+img_padded = np.pad(def_img, (2,2), "reflect")
+print(img_padded[31,1889], img_padded[33, 1891], img_padded[35,1893])
+
 
 dpc        = openisp.DPC(def_img, size, 80) 
 corr_img   = dpc.execute() 
 corr_mask  = dpc.mask
+print(sum(corr_img.ravel()==3894))
+print(np.amax(corr_img))
+img_padded = np.pad(corr_img, (2,2), "reflect")
+print(img_padded[31,1889], img_padded[33, 1891], img_padded[35,1893])
+exit()
 
+print(np.amax(corr_img), np.amin(corr_img))
 save_img = gamma(demosaic_raw(white_balance(def_img.copy(), 320/256, 740/256, 256/256), "RGGB"))
 plt.imsave("/home/user3/Desktop/DPC_output.png", save_img)
 print("img saved")

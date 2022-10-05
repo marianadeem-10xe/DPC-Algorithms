@@ -17,6 +17,8 @@ class DPC:
         return img_pad
     
     def clipping(self, clip):
+        if np.amax(self.img.copy().ravel())>4095 or np.amin(self.img.copy().ravel())<0:
+            print("clipping after DPC")
         np.clip(self.img, 0, clip, out=self.img)
         return self.img
     
@@ -68,6 +70,7 @@ class DPC:
                 dpc_img[y, x] = p0
                 if self.img[y, x]!=p0:
                     self.mask[y, x] = p0
+        
         self.img = dpc_img
         return self.clipping(4095)      # not needed as all the corrected values are within 12 bit scale.       
 

@@ -26,8 +26,8 @@ print("total images: ", len(paths))
 result = Results()
 for raw_path in paths:    
     raw_filename    = Path(raw_path).stem.split(".")[0]
-    out_img_path    = main_path +"openISP/corrected images/line_corrected_openISP_imp_1th_80_" + raw_filename +".png"
-    out_mask_path   = main_path +"openISP/corrected masks/line_corrected_mask_openISP_imp_1th_80_" + raw_filename +".raw"
+    out_img_path    = main_path +"Yongji/corrected images/DPC_yongji_imp_3th_min, max, 20_" + raw_filename +".png"
+    out_mask_path   = main_path +"Yongji/corrected masks/corrected_mask_yongji_imp_3th_min, max, 20_" + raw_filename +".raw"
     GT_path         = main_path + "Raw GT/GT_" + ("_").join(raw_filename.split("_")[2:]) + ".raw"
     org_img_path    = main_path + "Undefected Raw Input/" + ("_").join(raw_filename.split("_")[2:]) + ".raw"
     size = (1536, 2592)                       #(height, width)
@@ -68,21 +68,19 @@ for raw_path in paths:
         
         # convert to 3 channel image before saving
         # save_img = gamma(demosaic_raw(white_balance(def_img.copy(), 320/256, 740/256, 256/256), "RGGB")) 
-        # plt.imsave(str(Path(raw_path).parent.parent)+ "/Input images/" + raw_filename + "_Input_image_line_corr_.png",save_img )
-        # exit()
+        # plt.imsave(str(Path(raw_path).parent.parent)+ "/Input images/" + raw_filename + "_Input_image_.png", save_img)
+
         print(def_img.shape)
         print(np.amax(def_img), np.amin(def_img))
         
-        dpc        = openisp.DPC(def_img, size, 80) 
+        dpc        = yongji_improved.DPC(def_img, size, 20, np.amin(def_img), np.amax(def_img)) 
         corr_img   = dpc.execute() 
         corr_mask  = dpc.mask
        
-        # print(np.count_nonzero(def_img[:,-2:]-corr_img[:,-2:]))
-        # print(np.count_nonzero(corr_img[-2:,:]))
-        # print(np.count_nonzero(corr_img[:,0:2]))
-        # print(np.count_nonzero(corr_img[:,-2:]))
-        # print(corr_img.shape, corr_mask.shape)
-        # print(np.nonzero(corr_mask[:,-2:]))
+        print(np.count_nonzero(corr_img[-2:,:]))
+        print(np.count_nonzero(corr_img[:,0:2]))
+        print(np.count_nonzero(corr_img[:,-2:]))
+        print(corr_img.shape, corr_mask.shape)
         
         # Save the corrected 3 channel image after white balancing
         save_corr_img = gamma(demosaic_raw(white_balance(corr_img.copy(), 320/256, 740/256, 256/256), "RGGB"))
@@ -102,4 +100,4 @@ for raw_path in paths:
         confusion_matrix.insert(0, raw_filename)
         result.add_row(confusion_matrix)
 
-result.save_csv(main_path, "line_corrected_openISP_imp_1th_80_results")
+result.save_csv(main_path, "Yongji_imp_3th_min, max, 20_results")
